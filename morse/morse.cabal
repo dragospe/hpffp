@@ -1,0 +1,43 @@
+cabal-version:  >=1.8
+name:           morse
+version:        0.1.0.0
+build-type:     Simple
+
+library
+  exposed-modules:
+      Morse
+  ghc-options: 
+      -Wall -fwarn-tabs
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7 && <5
+      , containers
+      , QuickCheck
+  default-language: Haskell2010
+
+executable morse
+  main-is: Main.hs
+  hs-source-dirs:
+      src
+  ghc-options: 
+      -Wall -fwarn-tabs
+  build-depends:
+      base >=4.7 && <5
+    , morse
+    , containers
+    , QuickCheck
+  default-language: Haskell2010
+
+test-suite tests
+  type: exitcode-stdio-1.0
+  main-is: tests.hs
+  hs-source-dirs:
+      tests
+  ghc-options: -Wall -fno-warn-orphans 
+  build-depends:
+      base >=4.7 && <5
+    , morse
+    , containers
+    , QuickCheck
+  default-language: Haskell2010
