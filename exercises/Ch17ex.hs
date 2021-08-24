@@ -31,12 +31,14 @@ instance EqProp (List a) where
 
 -- Take from https://stackoverflow.com/questions/36055669/how-do-i-create-an-arbitrary-instance-for-a-recursive-datatype
 instance Arbitrary a => Arbitrary (List a) where
-  arbitrary = sized go
-    where go 0 = pure Nil
-          go n = do
-            xs <- go (n - 1)
-            x <- arbitrary
-            return (Cons x xs)
+  arbitrary =
+    frequency [(1,nil), (4,cons)]
+    where nil = return Nil
+          cons = do
+            h <- arbitrary
+            t1 <- arbitrary
+            return $ Cons h tl
+
 
 
 main :: IO ()
