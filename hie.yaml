@@ -1,0 +1,31 @@
+cradle:
+  stack:
+    - path: "Ciphers/src"
+      component: "Ciphers:lib"
+
+    - path: "Ciphers/exe/Main.hs"
+      component: "Ciphers:exe:Ciphers"
+
+    - path: "addition/."
+      component: "addition:lib"
+
+    - path: "exercises/."
+      component: "exercises:lib"
+
+    - path: "hangman/src/Main.hs"
+      component: "hangman:exe:hangman"
+
+    - path: "hello/exe/Main.hs"
+      component: "hello:exe:hello"
+
+    - path: "hello/src"
+      component: "hello:lib"
+
+    - path: "morse/src"
+      component: "morse:lib"
+
+    - path: "morse/src/Main.hs"
+      component: "morse:exe:morse"
+
+    - path: "morse/tests"
+      component: "morse:test:tests"
