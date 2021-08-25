@@ -7,8 +7,8 @@ import Test.QuickCheck.Checkers
 import Test.QuickCheck.Classes
 
 ---- List applicative exercises
-data List a =
-  Nil
+data List a
+  = Nil
   | Cons a (List a)
   deriving (Eq, Show)
 
@@ -22,7 +22,7 @@ listGen4 = do
 
 listGen4Int :: Gen (List Int)
 listGen4Int = listGen4
-  
+
 instance Arbitrary a => Arbitrary (List a) where
   arbitrary = listGen4
 
@@ -44,7 +44,7 @@ instance Applicative List where
   pure x = Cons x Nil
   _ <*> Nil = Nil
   Nil <*> _ = Nil
-  Cons f f' <*> l = (f <$> l) <> (f'  <*> l)
+  Cons f f' <*> l = (f <$> l) <> (f' <*> l)
 
 -----
 -- ZipList applicative
@@ -54,29 +54,27 @@ append :: List a -> List a -> List a
 append Nil ys = ys
 append (Cons x xs) ys = Cons x $ xs `append` ys
 
-
 take' :: Int -> List a -> List a
 take' 0 _ = Nil
 take' _ Nil = Nil
-take' n l@(Cons x xs) = go n l Nil
-  where go :: Int -> List a -> List a -> List a
-        go 0 _ returnList = returnList
-        go _ Nil returnList = returnList
-        go n (Cons x xs) returnList =
-          go (n - 1) xs (returnList `append` (Cons x Nil) ) 
-
+take' n l = go n l Nil
+  where
+    go :: Int -> List a -> List a -> List a
+    go 0 _ returnList = returnList
+    go _ Nil returnList = returnList
+    go n' (Cons x xs) returnList =
+      go (n' - 1) xs (returnList `append` (Cons x Nil))
 
 newtype ZipList' a = ZipList' [a] deriving (Eq, Show)
 
 instance Eq a => EqProp (ZipList' a) where
   xs =-= ys = xs' `eq` ys'
-    where xs' = let (ZipList' l) = xs in take 3000 l
-          ys' = let (ZipList' l) = ys in take 3000 l
-
+    where
+      xs' = let (ZipList' l) = xs in take 3000 l
+      ys' = let (ZipList' l) = ys in take 3000 l
 
 instance Functor ZipList' where
   fmap f (ZipList' xs) = ZipList' $ fmap f xs
- 
 
 --- Wrong -- not totally sure what they're looking for here?
 instance Applicative ZipList' where
@@ -84,10 +82,11 @@ instance Applicative ZipList' where
   _ <*> ZipList' [] = ZipList' []
   ZipList' [] <*> _ = ZipList' []
   ZipList' l <*> ZipList' l' = ZipList' (go l l' [])
-    where go :: [(a -> b)] -> [a] -> [b] -> [b]
-          go [] _ rlist  = rlist
-          go _ [] rlist = rlist
-          go (f : fs) (x : xs) rlist = (f x) : (go fs xs rlist)
+    where
+      go :: [(a -> b)] -> [a] -> [b] -> [b]
+      go [] _ rlist = rlist
+      go _ [] rlist = rlist
+      go (f : fs) (x : xs) rlist = (f x) : (go fs xs rlist)
 
 --- Validation exercises
 
@@ -103,21 +102,20 @@ instance (Arbitrary e, Arbitrary a) => Arbitrary (Validation e a) where
   arbitrary = do
     a <- arbitrary
     b <- arbitrary
-    oneof  [return $ F a, return $ S b]
+    oneof [return $ F a, return $ S b]
 
 instance Functor (Validation e) where
-  fmap f (F e) = F e
+  fmap _ (F e) = F e
   fmap f (S a) = S (f a)
 
 instance (Eq e, Eq a) => EqProp (Validation e a) where
   (=-=) x y = x `eq` y
 
-
 instance Monoid e => Applicative (Validation e) where
   pure x = S x
   S f <*> S x = S (f x)
-  S x <*> F e = F e
-  F e <*> S x = F e
+  S _ <*> F e = F e
+  F e <*> S _ = F e
   F e <*> F e' = F (e <> e')
 
 --
@@ -138,10 +136,10 @@ instance Applicative (Pair) where
 
 instance Eq a => EqProp (Pair a) where
   x =-= y = x `eq` y
-  
+
 main :: IO ()
 main = do
-  quickBatch (semigroup ((Cons ( 2:: Int) Nil), (2 :: Int)))
+  quickBatch (semigroup ((Cons (2 :: Int) Nil), (2 :: Int)))
   quickBatch (monoid (Cons (2 :: Int) Nil))
   quickBatch (functor (undefined :: List (String, String, Int)))
   quickBatch (applicative (undefined :: List (String, String, Int)))
@@ -203,11 +201,11 @@ instance (Eq a, Eq b, Eq c) => EqProp (Three a b c) where
 testThree :: IO ()
 testThree = do
   quickBatch (functor (undefined :: Three [Int] [Char] (String, Int, String)))
-  quickBatch (applicative (undefined :: Three [Int]  [Char] (String, Int, String)))
+  quickBatch (applicative (undefined :: Three [Int] [Char] (String, Int, String)))
 
 --
 
-data Three' a b  = Three' a b b deriving (Eq, Show)
+data Three' a b = Three' a b b deriving (Eq, Show)
 
 instance (Arbitrary a, Arbitrary b) => Arbitrary (Three' a b) where
   arbitrary = do
@@ -216,10 +214,10 @@ instance (Arbitrary a, Arbitrary b) => Arbitrary (Three' a b) where
     b' <- arbitrary
     return (Three' a b b')
 
-instance Functor (Three' a ) where
+instance Functor (Three' a) where
   fmap f (Three' a b b') = Three' a (f b) (f b')
 
-instance (Monoid a) => Applicative (Three' a ) where
+instance (Monoid a) => Applicative (Three' a) where
   pure x = Three' mempty x x
   (Three' a b c) <*> (Three' a' b' c') = Three' (a <> a') (b b') (c c')
 
