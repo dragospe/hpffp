@@ -85,7 +85,63 @@ testMin' = do
   quickBatch $ monoid (Min' (1 :: Int))
 
 -- Ex 6
-{-
+{- Cheated on this one, but... whoa. Wouldn't have thought of that easily. -}
+
 null :: (Foldable t) => t a -> Bool
-null x = foldr (
--}
+null = foldr (\_ _ -> False) True
+
+-- Ex 7
+
+length' :: Foldable t => t a -> Integer
+length' xs = foldr f 0 xs
+  where
+    f :: (a -> Integer -> Integer)
+    f _ n = n + 1
+
+-- Ex 8
+
+toList' :: (Foldable t) => t a -> [a]
+toList' = foldr (:) []
+
+-- Ex 9
+
+fold :: (Foldable t, Monoid m) => t m -> m
+fold = foldMap id
+
+-- Ex 10
+
+foldMap' :: (Foldable t, Monoid m) => (a -> m) -> t a -> m
+foldMap' f xs = foldr ((<>) . f) mempty xs
+
+{----- Chapter Exercises -----}
+
+-- Ex 1
+
+data Constant a b = Constant b deriving (Eq, Show)
+
+instance Foldable (Constant a) where
+  foldr f acc (Constant b) = f b acc
+
+-- Ex 2
+
+data Two a b = Two a b
+
+instance Foldable (Two a) where
+  foldr f acc (Two _ b) = f b acc
+
+-- Ex 4
+
+data Three' a b = Three' a b b
+
+instance Foldable (Three' a) where
+  foldr f acc (Three' _ b b') = (f b (f b' acc))
+
+-- filterF exercise
+
+filterF :: (Applicative f, Foldable t, Monoid (f a)) => (a -> Bool) -> t a -> f a
+filterF f = foldMap (f' f)
+  where
+    f' :: (Applicative f, Monoid (f a)) => (a -> Bool) -> a -> f a
+    f' g x
+      | g x = pure x
+      | otherwise = mempty
