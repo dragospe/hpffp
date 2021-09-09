@@ -2,6 +2,7 @@
 \#*\#
 *~
 
+
 # Partially stolen from Stack's .gitignore
 *.hi
 *.o
@@ -33,3 +34,5 @@ tags
 .hspec-failures
 better-cache/
 stack*.yaml.lock
+.stack-work/*
+dist-newstyle
