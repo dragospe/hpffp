@@ -1,7 +1,7 @@
 # Ignore emacs tmp and autosave files
 \#*\#
 *~
-
+^.\#
 
 # Partially stolen from Stack's .gitignore
 *.hi
